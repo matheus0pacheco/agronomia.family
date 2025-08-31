@@ -1,0 +1,7 @@
+Store contact form submissions and add admin view to manage them
+
+Implements PostgreSQL database for storing contact form data using SQLAlchemy.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 580a34a8-25bf-408f-880f-24ac99ad1d5f
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/a42d89e5-0ea8-41ca-bd1e-e8db7580f7cb/580a34a8-25bf-408f-880f-24ac99ad1d5f/kSBZqsK

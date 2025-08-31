@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Contatos Recebidos - Papa-Léguas{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-inbox me-2"></i>Contatos Recebidos
+                </h2>
+                <a href="{{ url_for('home') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Voltar ao Site
+                </a>
+            </div>
+            
+            {% if submissions %}
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-list me-2"></i>Total de Contatos: {{ submissions|length }}
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Data</th>
+                                                <th>Nome</th>
+                                                <th>E-mail</th>
+                                                <th>Telefone</th>
+                                                <th>Serviço</th>
+                                                <th>Status</th>
+                                                <th>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for submission in submissions %}
+                                            <tr>
+                                                <td>
+                                                    <small class="text-muted">
+                                                        {{ submission.created_at.strftime('%d/%m/%Y') }}<br>
+                                                        {{ submission.created_at.strftime('%H:%M') }}
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <strong>{{ submission.name }}</strong>
+                                                </td>
+                                                <td>
+                                                    <a href="mailto:{{ submission.email }}" class="text-primary">
+                                                        {{ submission.email }}
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    {% if submission.phone %}
+                                                        <a href="tel:{{ submission.phone }}" class="text-success">
+                                                            {{ submission.phone }}
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="text-muted">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if submission.service_type %}
+                                                        <span class="badge bg-info">
+                                                            {{ submission.service_type.replace('_', ' ').title() }}
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="text-muted">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if submission.status == 'new' %}
+                                                        <span class="badge bg-warning">Novo</span>
+                                                    {% elif submission.status == 'contacted' %}
+                                                        <span class="badge bg-primary">Contatado</span>
+                                                    {% elif submission.status == 'completed' %}
+                                                        <span class="badge bg-success">Concluído</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#messageModal{{ submission.id }}">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Message Modals -->
+                {% for submission in submissions %}
+                <div class="modal fade" id="messageModal{{ submission.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-envelope me-2"></i>Mensagem de {{ submission.name }}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">Informações de Contato</h6>
+                                        <p><strong>Nome:</strong> {{ submission.name }}</p>
+                                        <p><strong>E-mail:</strong> {{ submission.email }}</p>
+                                        {% if submission.phone %}
+                                        <p><strong>Telefone:</strong> {{ submission.phone }}</p>
+                                        {% endif %}
+                                        {% if submission.service_type %}
+                                        <p><strong>Serviço:</strong> {{ submission.service_type.replace('_', ' ').title() }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">Detalhes</h6>
+                                        <p><strong>Data:</strong> {{ submission.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+                                        <p><strong>Status:</strong> 
+                                            {% if submission.status == 'new' %}
+                                                <span class="badge bg-warning">Novo</span>
+                                            {% elif submission.status == 'contacted' %}
+                                                <span class="badge bg-primary">Contatado</span>
+                                            {% elif submission.status == 'completed' %}
+                                                <span class="badge bg-success">Concluído</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h6 class="text-primary">Mensagem</h6>
+                                        <div class="bg-light p-3 rounded">
+                                            {{ submission.message }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if submission.notes %}
+                                <hr>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h6 class="text-primary">Notas Internas</h6>
+                                        <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                            {{ submission.notes }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                <a href="mailto:{{ submission.email }}" class="btn btn-primary">
+                                    <i class="fas fa-reply me-2"></i>Responder
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
+                    <h4 class="text-muted mt-3">Nenhum contato recebido ainda</h4>
+                    <p class="text-muted">Quando os clientes enviarem mensagens pelo formulário de contato, elas aparecerão aqui.</p>
+                    <a href="{{ url_for('home') }}#contato" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Ver Formulário de Contato
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
